@@ -26,6 +26,7 @@
 
 var mysql = require('mysql');
 var inquirer = require('inquirer');
+var table = require('text-table');
 
 var connection = mysql.createConnection({
   host: 'localhost',
@@ -35,12 +36,35 @@ var connection = mysql.createConnection({
   database: 'bamazon',
 });
 
-connection.connect(function (err) {
-  if (err) throw err;
-  console.log('connected as id ' + connection.threadId);
-  connection.end();
-});
+// connection.connect(function (err) {
+//   if (err) throw err;
+//   console.log('connected as id ' + connection.threadId);
+//   connection.end();
+// });
 
+function gueryData() {
+  connection.query('SELECT * FROM products', function (err, res) {
+    if (err) throw err;
+    // console.log(res);
+    allItems = [
+      ['Id', 'Product Name', 'Price', 'Quantity'],
+      ['', '', '', ''],
+    ];
+    res.forEach((item) => {
+      var row = [item.id, item.product_name, item.price, item.stock_quantity];
+      allItems.push(row);
+    });
+    var t = table(allItems);
+    console.log(t);
+    connection.end();
+  });
+}
+gueryData();
+
+// var t = table([
+//   ['master', '0123456789abcdef'],
+//   ['staging', 'fedcba9876543210'],
+// ]);
 // inquirer
 //   .prompt([
 //     {
