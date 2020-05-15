@@ -1,7 +1,7 @@
 {
   "name": "bamazon",
   "version": "1.0.0",
-  "description": "",
+  "description": "This app is a fun exampe of the almost famous online retail store Bamazon where you an order ALL THE THINGS!",
   "main": "app.js",
   "dependencies": {
     "inquirer": "^7.1.0",

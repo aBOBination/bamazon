@@ -27,13 +27,27 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
 
-inquirer
-  .prompt([
-    {
-      name: 'faveReptile',
-      message: 'What is your favorite reptile?',
-    },
-  ])
-  .then((answers) => {
-    console.info('Answer:', answers.faveReptile);
-  });
+var connection = mysql.createConnection({
+  host: 'localhost',
+  port: 8889,
+  user: 'root',
+  password: 'root',
+  database: 'bamazon',
+});
+
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log('connected as id ' + connection.threadId);
+  connection.end();
+});
+
+// inquirer
+//   .prompt([
+//     {
+//       name: 'faveReptile',
+//       message: 'What is your favorite reptile?',
+//     },
+//   ])
+//   .then((answers) => {
+//     console.info('Answer:', answers.faveReptile);
+//   });
