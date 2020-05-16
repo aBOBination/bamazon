@@ -30,11 +30,19 @@ var table = require('text-table');
 
 var connection = mysql.createConnection({
   host: 'localhost',
-  port: 8889,
+  port: 3306 || 8889,
   user: 'root',
   password: 'root',
   database: 'bamazon',
 });
+
+// var connection = mysql.createConnection({
+//   host: 'localhost',
+//   port: 8889,
+//   user: 'root',
+//   password: 'root',
+//   database: 'bamazon',
+// });
 
 // connection.connect(function (err) {
 //   if (err) throw err;
@@ -55,7 +63,13 @@ function gueryData() {
       allItems.push(row);
     });
     var t = table(allItems);
-    console.log(t);
+    console.table(res, [
+      'id',
+      'product_name',
+      'department_name',
+      'price',
+      'stock_quantity',
+    ]);
     connection.end();
   });
 }
