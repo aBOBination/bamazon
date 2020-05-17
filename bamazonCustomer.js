@@ -26,66 +26,65 @@
 
 var mysql = require('mysql');
 var inquirer = require('inquirer');
-var table = require('text-table');
+const { table } = require('table');
 
-var connection = mysql.createConnection({
-  host: 'localhost',
-  port: 3306 || 8889,
-  user: 'root',
-  password: 'root',
-  database: 'bamazon',
-});
-
-// var connection = mysql.createConnection({
-//   host: 'localhost',
-//   port: 8889,
-//   user: 'root',
-//   password: 'root',
-//   database: 'bamazon',
-// });
-
-// connection.connect(function (err) {
-//   if (err) throw err;
-//   console.log('connected as id ' + connection.threadId);
-//   connection.end();
-// });
-
-function gueryData() {
-  connection.query('SELECT * FROM products', function (err, res) {
-    if (err) throw err;
-    // console.log(res);
-    allItems = [
-      ['Id', 'Product Name', 'Price', 'Quantity'],
-      ['', '', '', ''],
-    ];
-    res.forEach((item) => {
-      var row = [item.id, item.product_name, item.price, item.stock_quantity];
-      allItems.push(row);
+var db = {
+  conn: function () {
+    var connection = mysql.createConnection({
+      host: 'localhost',
+      port: 8889,
+      // port: 3306,
+      user: 'root',
+      password: 'root',
+      database: 'bamazon',
     });
-    var t = table(allItems);
-    console.table(res, [
-      'id',
-      'product_name',
-      'department_name',
-      'price',
-      'stock_quantity',
-    ]);
-    connection.end();
-  });
-}
-gueryData();
+    return connection;
+  },
 
-// var t = table([
-//   ['master', '0123456789abcdef'],
-//   ['staging', 'fedcba9876543210'],
-// ]);
-// inquirer
-//   .prompt([
-//     {
-//       name: 'faveReptile',
-//       message: 'What is your favorite reptile?',
-//     },
-//   ])
-//   .then((answers) => {
-//     console.info('Answer:', answers.faveReptile);
-//   });
+  showAll: function () {
+    console.log('Grabbing Inventory...');
+    var conn = this.conn();
+    conn.query('SELECT * FROM products', function (err, res) {
+      if (err) throw err;
+      // console.log(res);
+      allItems = [['Id', 'Product Name', 'Price', 'Quantity']];
+      res.forEach((item) => {
+        var row = [item.id, item.product_name, item.price, item.stock_quantity];
+        allItems.push(row);
+      });
+      var t = table(allItems);
+
+      conn.end();
+      console.log(t);
+    });
+  },
+};
+
+function askQuestion() {
+  inquirer
+    .prompt([
+      {
+        name: 'itemId',
+        message: 'What item do you wish to buy?  Enter Id of item.',
+      },
+      {
+        name: 'itemQty',
+        message: 'How many do you want?',
+      },
+    ])
+    .then((answers) => {
+      let itemId = answers.itemId;
+      let itemQty = answers.itemQty;
+      console.info('itemId:', itemId);
+      console.info('itemQty:', itemQty);
+      // query db with id and return id, name, qty
+      // if qty is avilable update db and query all
+      // else console Insufficient quantity!
+    });
+}
+
+function placeOrder(callback) {
+  db.showAll();
+  askQuestion();
+}
+placeOrder();
