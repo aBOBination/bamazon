@@ -23,4 +23,4 @@ After the order is placed you will see your total.
 
 This app uses mysql for the database and interacts with Node using the `mysql` module.
 
-This app also uses `Inquierer` for handling user input and `Table` for displaying the inventory.
+This app also uses `inquirer` for handling user input and `Table` for displaying the inventory.
