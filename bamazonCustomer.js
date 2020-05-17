@@ -76,8 +76,6 @@ var db = {
       conn.end();
     });
   },
-
-  placeOrder: function () {},
 };
 
 function askQuestion() {
