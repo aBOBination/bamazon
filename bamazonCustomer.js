@@ -32,8 +32,8 @@ var db = {
   conn: function () {
     var connection = mysql.createConnection({
       host: 'localhost',
-      // port: 8889,
-      port: 3306,
+      port: 8889,
+      // port: 3306,
       user: 'root',
       password: 'root',
       database: 'bamazon',
@@ -63,16 +63,27 @@ var db = {
     conn.query('SELECT * FROM products where Id = ?', id, function (err, res) {
       if (err) throw err;
       if (res[0].stock_quantity >= qty) {
+        let newQty = parseInt(res[0].stock_quantity) - parseInt(qty);
         let message =
-          'Placed order for ' +
+          'Order placed for: ' +
           qty +
           ' unit(s) of ' +
           res[0].product_name +
           '.';
         console.log(message);
+        db.updateTable(id, newQty);
       } else {
         console.log('Insufficient quantity!');
       }
+      conn.end();
+    });
+  },
+  updateTable: function (id, newQty) {
+    var conn = this.conn();
+    var updateQuery = 'UPDATE products SET stock_quantity = ? WHERE id = ?;';
+    conn.query(updateQuery, [newQty, id], function (err, res) {
+      if (err) throw err;
+      db.showAll();
       conn.end();
     });
   },
