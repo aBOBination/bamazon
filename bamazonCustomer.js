@@ -32,8 +32,8 @@ var db = {
   conn: function () {
     var connection = mysql.createConnection({
       host: 'localhost',
-      port: 8889,
-      // port: 3306,
+      // port: 8889,
+      port: 3306,
       user: 'root',
       password: 'root',
       database: 'bamazon',
@@ -41,7 +41,7 @@ var db = {
     return connection;
   },
 
-  showAll: function () {
+  showAll: function (callback) {
     console.log('Grabbing Inventory...');
     var conn = this.conn();
     conn.query('SELECT * FROM products', function (err, res) {
@@ -53,11 +53,31 @@ var db = {
         allItems.push(row);
       });
       var t = table(allItems);
-
-      conn.end();
       console.log(t);
+      conn.end(callback);
     });
   },
+  placeOrder: function (id, qty) {
+    console.log('Grabbing Inventory...');
+    var conn = this.conn();
+    conn.query('SELECT * FROM products where Id = ?', id, function (err, res) {
+      if (err) throw err;
+      if (res[0].stock_quantity >= qty) {
+        let message =
+          'Placed order for ' +
+          qty +
+          ' unit(s) of ' +
+          res[0].product_name +
+          '.';
+        console.log(message);
+      } else {
+        console.log('Insufficient quantity!');
+      }
+      conn.end();
+    });
+  },
+
+  placeOrder: function () {},
 };
 
 function askQuestion() {
@@ -77,14 +97,11 @@ function askQuestion() {
       let itemQty = answers.itemQty;
       console.info('itemId:', itemId);
       console.info('itemQty:', itemQty);
+      db.placeOrder(itemId, itemQty);
       // query db with id and return id, name, qty
       // if qty is avilable update db and query all
       // else console Insufficient quantity!
     });
 }
 
-function placeOrder(callback) {
-  db.showAll();
-  askQuestion();
-}
-placeOrder();
+db.showAll(askQuestion);
