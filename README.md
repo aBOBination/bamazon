@@ -14,10 +14,9 @@ The first thing you will see is the inventory of the store.
 
 Follow the prompt to place your order.
 
-After the order is placed you will see your total.
+The app then checks if the quantity is available and executes the order and shows the user their total and updates the database.
 
 ![image](/assets/images/img2.png)
-
 
 ## Under the hood
 
