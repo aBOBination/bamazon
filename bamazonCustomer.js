@@ -1,29 +1,3 @@
-// Populate this database with around 10 different products. (i.e. Insert
-// "mock" data rows into this database and table).
-
-// Then create a Node application called bamazonCustomer.js. Running this
-// application will first display all of the items available for sale.
-// Include the ids, names, and prices of products for sale.
-
-// The app should then prompt users with two messages.
-
-// The first should ask them the ID of the product they would like to buy.
-// The second message should ask how many units of the product they would
-// like to buy.
-
-// Once the customer has placed the order, your application should check if
-// your store has enough of the product to meet the customer's request.
-
-// If not, the app should log a phrase like Insufficient quantity!, and then
-// prevent the order from going through.
-
-// However, if your store does have enough of the product, you should fulfill
-// the customer's order.
-
-// This means updating the SQL database to reflect the remaining quantity.
-// Once the update goes through, show the customer the total cost of their
-// purchase.
-
 var mysql = require('mysql');
 var inquirer = require('inquirer');
 const { table } = require('table');
@@ -32,8 +6,8 @@ var db = {
   conn: function () {
     var connection = mysql.createConnection({
       host: 'localhost',
-      port: 8889,
-      // port: 3306,
+      port: 8889, // mac
+      // port: 3306, // windows
       user: 'root',
       password: 'root',
       database: 'bamazon',
@@ -46,7 +20,6 @@ var db = {
     var conn = this.conn();
     conn.query('SELECT * FROM products', function (err, res) {
       if (err) throw err;
-      // console.log(res);
       allItems = [['Id', 'Product Name', 'Price', 'Quantity']];
       res.forEach((item) => {
         var row = [item.id, item.product_name, item.price, item.stock_quantity];
@@ -57,20 +30,18 @@ var db = {
       conn.end(callback);
     });
   },
-  placeOrder: function (id, qty) {
-    console.log('Grabbing Inventory...');
+
+  tryOrder: function (id, qty) {
     var conn = this.conn();
     conn.query('SELECT * FROM products where Id = ?', id, function (err, res) {
       if (err) throw err;
       if (res[0].stock_quantity >= qty) {
         let newQty = parseInt(res[0].stock_quantity) - parseInt(qty);
-        let message =
-          'Order placed for: ' +
-          qty +
-          ' unit(s) of ' +
-          res[0].product_name +
-          '.';
-        console.log(message);
+        let product = res[0].product_name;
+        let price = res[0].price;
+        let total = qty * price;
+        let message = `${product} X ${qty}: $ ${total}.`;
+        console.log('Order placed:\n' + message);
         db.updateTable(id, newQty);
       } else {
         console.log('Insufficient quantity!');
@@ -78,18 +49,18 @@ var db = {
       conn.end();
     });
   },
+
   updateTable: function (id, newQty) {
     var conn = this.conn();
     var updateQuery = 'UPDATE products SET stock_quantity = ? WHERE id = ?;';
     conn.query(updateQuery, [newQty, id], function (err, res) {
       if (err) throw err;
-      db.showAll();
       conn.end();
     });
   },
 };
 
-function askQuestion() {
+function placeOrder() {
   inquirer
     .prompt([
       {
@@ -104,13 +75,8 @@ function askQuestion() {
     .then((answers) => {
       let itemId = answers.itemId;
       let itemQty = answers.itemQty;
-      console.info('itemId:', itemId);
-      console.info('itemQty:', itemQty);
-      db.placeOrder(itemId, itemQty);
-      // query db with id and return id, name, qty
-      // if qty is avilable update db and query all
-      // else console Insufficient quantity!
+      db.tryOrder(itemId, itemQty);
     });
 }
 
-db.showAll(askQuestion);
+db.showAll(placeOrder);
